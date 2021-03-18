@@ -24,7 +24,7 @@ client.on("message", function(message) {
       }
     }
   } catch (err) {
-    console.log(err);
+    console.log(err.message);
   }
 });
 
