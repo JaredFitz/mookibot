@@ -102,7 +102,7 @@ const getMookiPointLeaderboard = (message) => {
       }
     })
 
-    message.channel.send(`Mookipoint Leaders:\n${resultLeaders.map(l => `${l.name}: ${l.points}\n`)}`)
+    message.channel.send(`Mookipoint Leaders:\n${resultLeaders.map(l => `${l.name}: ${l.points}`).join('\n')}`)
   });
 };
 
@@ -117,7 +117,7 @@ const handleIndividualStatus = (message) => {
 
       const points = scores[message.author.id] ? scores[message.author.id] : 0;
 
-      message.channel.send(`<@${message.author.id}>, you have ${points} points!`);
+      message.channel.send(`<@${message.author.id}>, you have ${points} mookipoints!`);
     })
   } else {
     throw new Error('handleIndividualStatus Err: Invalid request');
