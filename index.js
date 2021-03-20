@@ -16,23 +16,32 @@ client.on("message", function(message) {
   try {
     if (message.author.username === username) {
       mookUwu(message);
-  
-      const command = parseCommand(message);
-      switch (command) {
-        case 'mookipoints':
+    }
+
+    // only work with prefix commands
+    if (!message.content.startsWith(prefix) || message.author.bot) return;
+
+    const command = parseCommand(message);
+
+    switch(command) {
+      case 'mookipoints':
+        if (message.author.username === username) {
           addMookiPoints(message);
-          break;
-        case 'leaderboard':
-          getMookiPointLeaderboard(message);
-          break;
-        case 'status':
-          handleIndividualStatus(message);
-          break;
-      }
+        }
+        break;
+      case 'leaderboard':
+        getMookiPointLeaderboard(message);
+        break;
+      case 'status':
+        handleIndividualStatus(message);
+        break;
+      default:
+        throw new Error('command Err: unknown command');
     }
   } catch (err) {
     // message.react('✅');
     message.react('❌');
+    console.log(err.message);
   }
 });
 
@@ -67,6 +76,8 @@ const addMookiPoints = (message) => {
 
     scores[userId] = newPoints;
     redisClient.set('mookipoints', JSON.stringify(scores));
+
+    message.react('✅');
   })
 };
 
@@ -91,7 +102,7 @@ const getMookiPointLeaderboard = (message) => {
       }
     })
 
-    message.channel.send(`Mookipoint Leaders:\n${resultLeaders.map(l => `${l.name} - ${l.points}\n`)}`)
+    message.channel.send(`Mookipoint Leaders:\n${resultLeaders.map(l => `${l.name}: ${l.points}\n`)}`)
   });
 };
 
@@ -101,10 +112,12 @@ const handleIndividualStatus = (message) => {
   
   if (messageSplit.length === 1) {
     // own points
-    redisClient.get(message.author.id, (err, val) => {
-      const points = val === null ? 0 : val;
+    redisClient.get('mookipoints', (err, val) => {
+      const scores = JSON.parse(val);
 
-      message.channel.send(`<@${message.author.id}> has ${points} points!`);
+      const points = scores[message.author.id] ? scores[message.author.id] : 0;
+
+      message.channel.send(`<@${message.author.id}>, you have ${points} points!`);
     })
   } else {
     throw new Error('handleIndividualStatus Err: Invalid request');
