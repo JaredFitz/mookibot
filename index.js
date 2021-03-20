@@ -46,7 +46,9 @@ client.on("message", function(message) {
 });
 
 const mookUwu = (message) => {
-  if (message.content.toLowerCase().includes('big') || message.content.toLowerCase().includes('scary')) {
+  if (message.content.toLowerCase().includes('fuck')) {
+    message.channel.send('No, fuck youwu!');
+  } else if (message.content.toLowerCase().includes('big') || message.content.toLowerCase().includes('scary')) {
     message.channel.send('uwu');
   }
 };
