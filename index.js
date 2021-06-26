@@ -5,6 +5,7 @@ const redis = require('redis');
 const botToken = process.env.BOT_TOKEN;
 // TODO - change to ID instead
 const username = process.env.USER_NAME;
+const adminUsername = process.env.ADMIN_USER_NAME;
 const prefix = process.env.PREFIX;
 
 const client = new Discord.Client();
@@ -23,21 +24,43 @@ client.on("message", function(message) {
 
     const command = parseCommand(message);
 
-    switch(command) {
-      case 'mookipoints':
-        if (message.author.username === username) {
-          addMookiPoints(message);
+    redisClient.get('commandStatus', (err, val) => {
+      const statuses = JSON.parse(val);
+
+      let active = true;
+      if (Object.keys(statuses).some(s => s === command)) active = statuses[s];
+      
+      if (active) {
+        switch(command) {
+          case 'mookipoints':
+            if (message.author.username === username) {
+              addMookiPoints(message);
+            }
+            break;
+          case 'leaderboard':
+            getMookiPointLeaderboard(message);
+            break;
+          case 'status':
+            handleIndividualStatus(message);
+            break;
+          case 'turnOffMookipoints':
+            if (message.author.username === adminUsername) {
+              handleToggleMookiPoints(message, false);
+            } 
+            break;
+            case 'turnOnMookipoints':
+              if (message.author.username === adminUsername) {
+                handleToggleMookiPoints(message, true);
+              } 
+              break;
+          default:
+            throw new Error('command Err: unknown command');
         }
-        break;
-      case 'leaderboard':
-        getMookiPointLeaderboard(message);
-        break;
-      case 'status':
-        handleIndividualStatus(message);
-        break;
-      default:
-        throw new Error('command Err: unknown command');
-    }
+      } else {
+        throw new Error('inactive command');
+      }
+    })
+
   } catch (err) {
     // message.react('✅');
     message.react('❌');
@@ -124,6 +147,10 @@ const handleIndividualStatus = (message) => {
   } else {
     throw new Error('handleIndividualStatus Err: Invalid request');
   }
+};
+
+const handleToggleMookiPoints = (message, newValue) => {
+  redisClient.set('commandStatus', JSON.stringify({ mookipoints: newValue }));
 };
 
 const getUserId = (message, possibleMentionString) => {
