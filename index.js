@@ -48,11 +48,11 @@ client.on("message", function(message) {
               handleToggleMookiPoints(message, false);
             } 
             break;
-            case 'turnOnMookipoints':
-              if (message.author.username === adminUsername) {
-                handleToggleMookiPoints(message, true);
-              } 
-              break;
+          case 'turnOnMookipoints':
+            if (message.author.username === adminUsername) {
+              handleToggleMookiPoints(message, true);
+            } 
+            break;
           default:
             throw new Error('command Err: unknown command');
         }
