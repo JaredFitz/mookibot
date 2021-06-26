@@ -151,6 +151,8 @@ const handleIndividualStatus = (message) => {
 
 const handleToggleMookiPoints = (message, newValue) => {
   redisClient.set('commandStatus', JSON.stringify({ mookipoints: newValue }));
+
+  message.react('✅');
 };
 
 const getUserId = (message, possibleMentionString) => {
